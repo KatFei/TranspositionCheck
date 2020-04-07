@@ -1,1 +1,5 @@
+The result of comparing 2 strings 
+s1: palindrom 
+s2: lindropam 
+is:
 True

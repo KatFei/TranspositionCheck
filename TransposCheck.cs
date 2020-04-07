@@ -2,13 +2,14 @@
 using System.IO;
 using System.Collections.Generic;
 
-/// <summary>Статический класс <c>TransposCheck</c> 
-/// содержит метод <see cref="IsTransposition(string,string)"></see>.</summary>
-/// <remarks></remarks>
-/// <seealso cref="IsTransposition(string,string)"></seealso>
+
 
 namespace TransposeCheckNS
 {
+    /// <summary>Статический класс <c>TransposCheck</c> 
+    /// содержит метод <see cref="IsTransposition(string,string)"></see>.</summary>
+    /// <remarks></remarks>
+    /// <seealso cref="IsTransposition(string,string)"></seealso>
     public class TransposCheck
     {
 
@@ -21,6 +22,13 @@ namespace TransposeCheckNS
 
         public static bool IsTransposition(string s1, string s2)
         {
+            if ((s1 == null) && (s2 == null))
+                throw new ArgumentNullException();
+            else if (s2 == null)
+                throw new ArgumentNullException("s2","Argument is null");
+            else if (s1 == null)
+                throw new ArgumentNullException("s1", "Argument is null");
+
             s1 = s1.ToLower();
             s2 = s2.ToLower();
             if (s1.Length != s2.Length)
@@ -57,30 +65,37 @@ namespace TransposeCheckNS
             }
             return true;
         }
-        
-
-        /// <seealso cref="IsTransposition(string,string)"></seealso>
 
     }
 
+    /// <summary>Класс <c>StringsChecker</c> 
+    /// содержит методы для работы с чтением/записью в файл и метод Main.</summary>
+    /// <remarks></remarks>
     public class StringsChecker
     {
 
         string srcStr1 = null;
         string srcStr2 = null;
-        bool result = false; //Enum для result 
-
+        bool result = false;
+        /// <summary>Свойство <c>SrcStr1</c> содержит исходную строку N1.</summary>
         public string SrcStr1
         {
             get {    return srcStr1;     }
         }
+        /// <summary>Свойство <c>SrcStr2</c> содержит исходную строку N2.</summary>
         public string SrcStr2
         {
             get { return srcStr2; }
         }
 
+        /// <summary>Метод <c>ReadFromSource</c> считывает исходные данные из файла.</summary>
+        /// <param name="path"> Путь к файлу</param>
+        /// <seealso cref="String"></seealso>
         public void ReadFromSource(string path)
         {
+            if (path == null)
+                throw new ArgumentNullException("");
+
             StreamReader sIn = null;
             try
             {
@@ -88,23 +103,30 @@ namespace TransposeCheckNS
                 srcStr1 = sIn.ReadLine();
                 srcStr2 = sIn.ReadLine();
             }
-            catch
+            catch(Exception e)
             {
                 Console.WriteLine("\nRead from file failed: \n" + path);
+                if(!File.Exists(path))
+                    throw new ArgumentNullException("File does not exist", e);
+                else
+                    throw new ArgumentException("Some Read Exception", e);
             }
             finally
             {
                 if (sIn != null) sIn.Close();
             }
+
+            if ((SrcStr1 == null) && (SrcStr2 == null))
+                throw new ArgumentException("File is empty");
         }
 
-        public bool IsTransposition()
-        {
-            result = TransposCheck.IsTransposition(SrcStr1, srcStr2);
-            return result;
-        }
+        /// <summary>Метод <c>WriteToFile</c> записывает результат в файл.</summary>
+        /// <param name="path"> Путь к файлу</param>
+        /// <seealso cref="String"></seealso>
         public void WriteToFile(string path)
         {
+            if (path == null)
+                throw new ArgumentNullException();
             if ((SrcStr1 != null) && (srcStr2 != null))
             {
                 result = TransposCheck.IsTransposition(SrcStr1, srcStr2);
@@ -114,15 +136,15 @@ namespace TransposeCheckNS
                 try
                 {
                     sOut = new StreamWriter(path);
-                    if (sOut != null)
-                    {
-                        sOut.WriteLine(result);
-                        Console.WriteLine("\nResult successfully written to " + path);
-                    }
+                    sOut.WriteLine("The result of comparing 2 strings {0}s1: {1} {0}s2: {2} {0}is:", Environment.NewLine, SrcStr1, SrcStr2);
+
+                    sOut.WriteLine(result);
+                    Console.WriteLine("\nResult successfully written to " + path);
                 }
-                catch
+                catch(Exception e)
                 {
                     Console.WriteLine("\nWrite to  file failed");
+                    throw new ArgumentException("Some Write Exception", e);
                 }
                 finally
                 {
@@ -130,6 +152,7 @@ namespace TransposeCheckNS
                 }
 
             }
+            
 
         }
 
@@ -147,48 +170,6 @@ namespace TransposeCheckNS
             StringsChecker checkingStrings = new StringsChecker();
             checkingStrings.ReadFromSource(path + "/Input.txt");
             checkingStrings.WriteToFile(path + "/Output.txt");
-            /*StreamReader sIn = null;
-            try
-            {
-                sIn = new StreamReader(path + "/Input.txt");
-                srcStr1 = sIn.ReadLine();
-                srcStr2 = sIn.ReadLine();
-            }
-            catch
-            {
-                Console.WriteLine("\nRead from file failed: \n" + path + "/Input.txt");
-            }
-            finally
-            {
-                if (sIn != null) sIn.Close();
-            }
-
-            if ((srcStr1 != null) && (srcStr2 != null))
-            {
-                result = TransposCheck.IsTransposition(srcStr1, srcStr2);
-
-
-                StreamWriter sOut = null;
-                try
-                {
-                    sOut = new StreamWriter(path + "/Output.txt");
-                    if (sOut != null)
-                    {
-                        sOut.WriteLine(result);
-                        Console.WriteLine("\nResult successfully written to " + path + "/Output.txt");
-                    }
-                }
-                catch
-                {
-                    Console.WriteLine("\nWrite to  file failed");
-                }
-                finally
-                {
-                    if (sOut != null) sOut.Close();
-                }
-
-            }
-            */
 
             Console.ReadKey();
             return 0;
